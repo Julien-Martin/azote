@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+  strapi:
+    image: strapi/strapi
+    container_name: strapi
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    networks:
+      - hydrogen
+    volumes:
+      - ./app:/srv/app
+    ports:
+      - "1337:1337"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portfolio.entrypoints=http
+      - traefik.http.routers.portfolio.rule=Host(`portfolio.codeassist.io`)
+      - traefik.http.routers.portfolio-secure.entrypoints=https
+      - traefik.http.routers.portfolio-secure.rule=Host(`portfolio.codeassist.io`)
+      - traefik.http.routers.portfolio-secure.tls=true
+      - traefik.http.routers.portfolio-secure.tls.certresolver=letsencrypt
+      - traefik.http.routers.portfolio-secure.service=portfolio
+      - traefik.http.services.portfolio.loadbalancer.server.port=80
+      - traefik.docker.network=hydrogen
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - hydrogen
+    volumes:
+      - strapidata:/data/db
+    ports:
+      - "27017:27017"
+
+networks:
+  hydrogen:
+    external: true

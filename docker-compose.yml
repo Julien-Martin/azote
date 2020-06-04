@@ -51,8 +51,8 @@ services:
       - default
     volumes:
       - strapidata:/data/db
-    ports:
-      - "27017:27017"
+    labels:
+      - traefik.tcp.routers.mongo.entrypoints=mongo
 
 networks:
   hydrogen:

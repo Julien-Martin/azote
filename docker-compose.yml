@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  sql:
+  azote-sql:
     container_name: azote-sql
     image: mariadb:bionic
     restart: always
@@ -14,7 +14,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
 
-  ghost:
+  azote-ghost:
     image: 'ghost:3'
     container_name: azote-ghost
     restart: always

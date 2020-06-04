@@ -20,6 +20,7 @@ services:
       - mongo
     networks:
       - hydrogen
+      - default
     volumes:
       - ./app:/srv/app
     ports:
@@ -47,6 +48,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     networks:
       - hydrogen
+      - default
     volumes:
       - strapidata:/data/db
     ports:

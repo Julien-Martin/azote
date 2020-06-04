@@ -1,62 +1,49 @@
-version: "3"
+version: '3.8'
 
 services:
-  strapi:
-    image: strapi/strapi
-    container_name: strapi
-    restart: unless-stopped
-    env_file:
-      - .env
+  sql:
+    container_name: azote-sql
+    image: mariadb:bionic
+    restart: always
+    command: --sql-mode=""
+    volumes:
+      - 'datasqlghost:/var/lib/mysql'
     environment:
-      DATABASE_CLIENT: ${DATABASE_CLIENT}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_HOST: ${DATABASE_HOST}
-      DATABASE_PORT: ${DATABASE_PORT}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-    links:
-      - mongo
-    depends_on:
-      - mongo
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  ghost:
+    image: 'ghost:3'
+    container_name: azote-ghost
+    restart: always
     networks:
       - hydrogen
-      - default
     volumes:
-      - ./app:/srv/app
-    ports:
-      - "1337:1337"
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/etc/timezone:/etc/timezone:ro'
+      - 'dataghost:/var/lib/ghost/content'
+      - './conf/config.production.json:/var/lib/ghost/config.production.json:ro'
     labels:
       - traefik.enable=true
-      - traefik.http.routers.portfolio.entrypoints=http
-      - traefik.http.routers.portfolio.rule=Host(`portfolio.codeassist.io`)
-      - traefik.http.routers.portfolio-secure.entrypoints=https
-      - traefik.http.routers.portfolio-secure.rule=Host(`portfolio.codeassist.io`)
-      - traefik.http.routers.portfolio-secure.tls=true
-      - traefik.http.routers.portfolio-secure.tls.certresolver=letsencrypt
-      - traefik.http.routers.portfolio-secure.service=portfolio
-      - traefik.http.services.portfolio.loadbalancer.server.port=80
+      - traefik.http.routers.ghost.entrypoints=http
+      - traefik.http.routers.ghost.rule=Host(`portfolio.codeassist.io`)
+      - traefik.http.routers.ghost-secure.entrypoints=https
+      - traefik.http.routers.ghost-secure.rule=Host(`portfolio.codeassist.io`)
+      - traefik.http.routers.ghost-secure.tls=true
+      - traefik.http.routers.ghost-secure.tls.certresolver=letsencrypt
+      - traefik.http.services.ghost.loadbalancer.server.port=2368
+      - traefik.http.routers.ghost.middlewares=https-redirect@file
+      - traefik.http.routers.ghost-secure.middlewares=compression@file, security@file
       - traefik.docker.network=hydrogen
-
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    networks:
-      - hydrogen
-      - default
-    volumes:
-      - strapidata:/data/db
-    labels:
-      - traefik.tcp.routers.mongo.entrypoints=mongo
+    depends_on:
+      - azote-sql
 
 networks:
   hydrogen:
     external: true
 
 volumes:
-  strapidata:
+  datasqlghost:
+  dataghost:

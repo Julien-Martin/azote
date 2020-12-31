@@ -14,7 +14,7 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
 
   azote-ghost:
-    image: 'ghost:3'
+    image: 'ghost:latest'
     container_name: azote-ghost
     restart: unless-stopped
     volumes:

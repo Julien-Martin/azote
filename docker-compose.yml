@@ -10,8 +10,6 @@ services:
       - 'datasqlghost:/var/lib/mysql'
     networks:
       - hydrogen
-    env_file:
-      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}

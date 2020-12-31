@@ -10,6 +10,7 @@ services:
       - 'datasqlghost:/var/lib/mysql'
     networks:
       - hydrogen
+      - default
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
@@ -22,6 +23,7 @@ services:
     restart: always
     networks:
       - hydrogen
+      - default
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - '/etc/timezone:/etc/timezone:ro'

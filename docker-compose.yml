@@ -4,14 +4,11 @@ services:
   azote-sql:
     container_name: azote-sql
     image: mariadb:bionic
-    restart: always
-    command: --sql-mode=""
+    restart: unless-stopped
     volumes:
       - 'datasqlghost:/var/lib/mysql'
-    networks:
-      - default
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -19,10 +16,7 @@ services:
   azote-ghost:
     image: 'ghost:3'
     container_name: azote-ghost
-    restart: always
-    networks:
-      - hydrogen
-      - default
+    restart: unless-stopped
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - '/etc/timezone:/etc/timezone:ro'
@@ -42,10 +36,6 @@ services:
       - traefik.docker.network=hydrogen
     depends_on:
       - azote-sql
-
-networks:
-  hydrogen:
-    external: true
 
 volumes:
   datasqlghost:

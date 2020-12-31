@@ -9,7 +9,6 @@ services:
     volumes:
       - 'datasqlghost:/var/lib/mysql'
     networks:
-      - hydrogen
       - default
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
